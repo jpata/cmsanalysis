@@ -1,9 +1,14 @@
-Recipes on how to use CRAB.
+# Overview
 
-- `crab`: scripts to work with crab, the CMS grid submission tool
-  - `mcgen_userscript`: run CMS MC generation from step1 (GEN-SIM) to MINIAOD (step4) in one job.
+This is my "TWiki-page".
 
+### Contents
 
+- crab: scripts to work with [CRAB](https://twiki.cern.ch/twiki/bin/view/CMSPublic/CRAB3ConfigurationFile), the CMS grid submission tool
+  - mcgen_userscript: run CMS MC generation from step1 (GEN-SIM) to MINIAOD (step4) in one job.
+- opendata: scripts to work with [CERN open data](http://opendata.cern.ch)
+
+## Misc stuff
 ### Finding the PU configuration of a MC sample
 The true distribution of pileup vertices for a CMS MC sample can be extracted from the configuration fragment. 
 
