@@ -1,0 +1,14 @@
+executable            = opendata.sh
+arguments             = $(ProcId)
+output                = output/opendata.$(ClusterId).$(ProcId).out
+error                 = error/opendata.$(ClusterId).$(ProcId).err
+log                   = log/opendata.$(ClusterId).log
+
+transfer_input_files  = inputs.txt
+requirements          = (OpSysAndVer =?= "CentOS7")
+
+#seconds
++MaxRuntime = 2*60*60
++MaxMemory = 3000
+
+queue
