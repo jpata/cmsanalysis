@@ -1,6 +1,12 @@
 # Overview
 
-This is my "TWiki-page".
+This is my notebook for CMS related projects and misc code.
+
+# Internal presentations in chronological order
+
+- 2019-08-29, Hmm JEC validation, [slides](https://indico.cern.ch/event/843650/contributions/3544420/attachments/1898929/3133828/2019_08_28_jecvalidation.pdf) [indico](https://indico.cern.ch/event/843650/)
+- 2019-08-26, Hmm JEC validation, [slides](https://indico.cern.ch/event/843251/contributions/3539954/attachments/1897274/3130575/slides.pdf) [indico](https://indico.cern.ch/event/843251)
+- 2019-08-14, Hmm JEC validation, [slides](https://indico.cern.ch/event/840943/contributions/3529969/attachments/1893494/3123355/slides.pdf) [indico](https://indico.cern.ch/event/840943)
 
 ### Contents
 
