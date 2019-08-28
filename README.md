@@ -1,12 +1,6 @@
 # Overview
 
-This is my notebook for CMS related projects and misc code.
-
-# Internal presentations in chronological order
-
-- 2019-08-29, Hmm JEC validation, [slides](https://indico.cern.ch/event/843650/contributions/3544420/attachments/1898929/3133828/2019_08_28_jecvalidation.pdf) [indico](https://indico.cern.ch/event/843650/)
-- 2019-08-26, Hmm JEC validation, [slides](https://indico.cern.ch/event/843251/contributions/3539954/attachments/1897274/3130575/slides.pdf) [indico](https://indico.cern.ch/event/843251)
-- 2019-08-14, Hmm JEC validation, [slides](https://indico.cern.ch/event/840943/contributions/3529969/attachments/1893494/3123355/slides.pdf) [indico](https://indico.cern.ch/event/840943)
+This is my notebook for CMS related projects and various small code snippets.
 
 ### Contents
 
@@ -26,3 +20,30 @@ The true distribution of pileup vertices for a CMS MC sample can be extracted fr
   - The pileup confs can be found in the folder `$CMSSW_RELEASE_BASE/src/SimGeneral/MixingModule/python`
   - This [script](https://github.com/UHH2/UHH2/blob/master/scripts/makeMCPileupHist.py) can be used to extract the MC pileup histogram.
 
+### Internal presentations in chronological order
+
+- 2019-08-29, Hmm JEC validation, [slides](https://indico.cern.ch/event/843650/contributions/3544420/attachments/1898929/3133828/2019_08_28_jecvalidation.pdf) [indico](https://indico.cern.ch/event/843650/)
+- 2019-08-26, Hmm JEC validation, [slides](https://indico.cern.ch/event/843251/contributions/3539954/attachments/1897274/3130575/slides.pdf) [indico](https://indico.cern.ch/event/843251)
+- 2019-08-14, Hmm JEC validation, [slides](https://indico.cern.ch/event/840943/contributions/3529969/attachments/1893494/3123355/slides.pdf) [indico](https://indico.cern.ch/event/840943)
+
+
+### PFAlgo debugging
+
+Add this to the end of the `step3.py` to enable logging.
+```python
+process.MessageLogger.categories += ["PFAlgo", "PFCandConnector"]
+process.MessageLogger.debugModules = cms.untracked.vstring("particleFlowTmp")
+process.MessageLogger.debugs = cms.untracked.PSet(
+     INFO =  cms.untracked.PSet(limit = cms.untracked.int32(0)),
+     DEBUG   = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+     PFAlgo = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
+     PFCandConnector = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
+     threshold = cms.untracked.string('DEBUG')
+)
+```
+
+Compiling and running a test workflow.
+```bash
+scram b -j8 USER_CXXFLAGS="-DEDM_ML_DEBUG"
+runTheMatrix.py -l 38
+```
