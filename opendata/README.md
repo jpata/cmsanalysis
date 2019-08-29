@@ -10,9 +10,10 @@ Summary on how to produce NanoAOD: https://twiki.cern.ch/twiki/bin/view/CMSPubli
 
 ```bash
 cmsDriver.py myNanoProdMc -s NANO --mc --eventcontent NANOAODSIM \
-  --datatier NANOAODSIM --no_exec \
-  --conditions 80X_mcRun2_asymptotic_2016_TrancheIV_v8 \
-  --era Run2_2016,run2_miniAOD_80XLegacy
+  --datatier NANOAODSIM  --no_exec \
+  --conditions 102X_mcRun2_asymptotic_v7 \
+  --era Run2_2016,run2_miniAOD_80XLegacy \
+  --customise_commands="process.add_(cms.Service('InitRootHandlers', EnableIMT = cms.untracked.bool(False)))"
 ```
 
 Add this to the end of the file `myNanoProdMc2016_NANO.py`:
