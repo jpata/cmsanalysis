@@ -1,0 +1,20 @@
+Bootstrap: docker
+From: centos:centos7
+
+%post
+    yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    yum update -y
+    yum install -y root python36-root gcc pythia8 pythia8-devel tcl wget which root-montecarlo-pythia8 zlib zlib-devel
+
+    mkdir /build
+    cd /build
+    wget http://cp3.irmp.ucl.ac.be/downloads/Delphes-3.4.2.tar.gz
+    tar xf Delphes-3.4.2.tar.gz
+    cd Delphes-3.4.2
+    export PYTHIA8=/usr/
+    make HAS_PYTHIA8=true -j4
+
+%environment
+
+%runscript
+    /bin/bash 

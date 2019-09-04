@@ -1,17 +1,19 @@
 #!/bin/bash
-
 set -e
+
+NUMJOB=$1
+
+export FILE=`sed "${NUMJOB}q;d" inputs2.txt`
 
 export WORKDIR=`pwd`
 
 env
 
-cd /afs/cern.ch/user/j/jpata/work/nano/CMSSW_10_2_15
+source /cvmfs/cms.cern.ch/cmsset_default.sh
+
+cd /storage/user/jpata/cmsanalysis/opendata/condor/CMSSW_10_2_15
 eval `scram runtime -sh`
-cd $TMPDIR
+cd $WORKDIR
 
-cp $WORKDIR/inputs.txt ./
-
-export FILE=`sed "${NUMJOB}q;d" inputs.txt`
-cmsRun /afs/cern.ch/user/j/jpata/work/nano/CMSSW_10_2_15/myNanoProdMc2016_NANO.py $FILE
-cp out.root /afs/cern.ch/user/j/jpata/work/nano/out.root
+cmsRun /storage/user/jpata/cmsanalysis/opendata/condor/CMSSW_10_2_15/myNanoProdMc_NANO.py $FILE
+cp out.root /storage/user/jpata/cmsanalysis/opendata/`basename $FILE`

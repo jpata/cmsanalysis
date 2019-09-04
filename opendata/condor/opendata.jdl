@@ -1,14 +1,21 @@
-executable            = opendata.sh
-arguments             = $(ProcId)
-output                = output/opendata.$(ClusterId).$(ProcId).out
-error                 = error/opendata.$(ClusterId).$(ProcId).err
-log                   = log/opendata.$(ClusterId).log
+Universe = vanilla
+executable = opendata.sh
+arguments = "$(ProcId)"
+output = output/opendata.$(ClusterId).$(ProcId).out
+error = error/opendata.$(ClusterId).$(ProcId).err
+log = log/opendata.$(ClusterId).log
 
-transfer_input_files  = inputs.txt
-requirements          = (OpSysAndVer =?= "CentOS7")
+transfer_input_files = inputs2.txt
+run_as_owner = True
+x509userproxy = $ENV(X509_USER_PROXY)
+Requirements=(TARGET.OpSysAndVer=="CentOS7" && regexp("blade.*", TARGET.Machine))
 
-#seconds
-+MaxRuntime = 2*60*60
-+MaxMemory = 3000
++InteractiveUser = true
++SingularityImage = "/cvmfs/singularity.opensciencegrid.org/bbockelm/cms:rhel6"
++SingularityBindCVMFS = True
++RequestWalltime = 12*3600
+RequestDisk = 4
+RequestMemory = 5000
+RequestCpus = 1
 
-queue
+queue 71
