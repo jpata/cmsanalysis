@@ -29,16 +29,36 @@ The true distribution of pileup vertices for a CMS MC sample can be extracted fr
 
 ### PFAlgo debugging
 
-Add this to the end of the `step3.py` to enable logging.
+Add this to the end of the `step3.py` to enable logging and debug outputs.
 ```python
-process.MessageLogger.categories += ["PFAlgo", "PFCandConnector"]
+process.MessageLogger.categories += ["PFAlgo", "PFCandConnector", "PFBlockAlgo"]
 process.MessageLogger.debugModules = cms.untracked.vstring("particleFlowTmp")
 process.MessageLogger.debugs = cms.untracked.PSet(
      INFO =  cms.untracked.PSet(limit = cms.untracked.int32(0)),
      DEBUG   = cms.untracked.PSet(limit = cms.untracked.int32(0)),
      PFAlgo = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
      PFCandConnector = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
+     PFBlockAlgo = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
      threshold = cms.untracked.string('DEBUG')
+)
+
+#To keep low-level inputs
+clusters = [
+  'keep recoPFClusters_particleFlowClusterECAL_*_*', 
+  'keep recoPFClusters_particleFlowClusterHCAL_*_*', 
+  'keep recoPFClusters_particleFlowClusterHO_*_*', 
+  'keep recoPFClusters_particleFlowClusterHF_*_*', 
+  'keep recoPFClusters_particleFlowClusterPS_*_*',
+]
+ 
+process.AODSIMoutput = cms.OutputModule("PoolOutputModule",
+    dataset = cms.untracked.PSet(
+        dataTier = cms.untracked.string('AODSIM'),
+        filterName = cms.untracked.string('')
+    ),
+    fileName = cms.untracked.string('file:step3_AOD.root'),
+    outputCommands = process.AODSIMEventContent.outputCommands + clusters,
+    splitLevel = cms.untracked.int32(0)
 )
 ```
 
