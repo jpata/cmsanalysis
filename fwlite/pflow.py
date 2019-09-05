@@ -19,7 +19,7 @@ class HandleLabel:
 
 class EventDesc:
     def __init__(self):
-        self.genparticle = HandleLabel("std::vector<reco::GenParticle>", "genParticles")
+        self.genparticle = HandleLabel("std::vector<reco::GenParticle>", "prunedGenParticles")
         self.pfcluster_ecal = HandleLabel("std::vector<reco::PFCluster>", "particleFlowClusterECAL")
         self.pfcluster_hcal = HandleLabel("std::vector<reco::PFCluster>", "particleFlowClusterHCAL")
         self.pfcluster_hf = HandleLabel("std::vector<reco::PFCluster>", "particleFlowClusterHF")
@@ -82,16 +82,18 @@ class Output:
         #http://cmsdoxygen.web.cern.ch/cmsdoxygen/CMSSW_10_6_2/doc/html/dd/d5b/classreco_1_1Track.html 
         self.ntracks = np.zeros(1, dtype=np.uint32)
         self.maxtracks = 1000
-        self.tracks_pt = np.zeros(self.maxtracks, dtype=np.float32)
-        self.tracks_eta = np.zeros(self.maxtracks, dtype=np.float32)
+        self.tracks_qoverp = np.zeros(self.maxtracks, dtype=np.float32)
+        self.tracks_lambda = np.zeros(self.maxtracks, dtype=np.float32)
         self.tracks_phi = np.zeros(self.maxtracks, dtype=np.float32)
-        self.tracks_charge = np.zeros(self.maxtracks, dtype=np.float32)
+        self.tracks_dxy = np.zeros(self.maxtracks, dtype=np.float32)
+        self.tracks_dsz = np.zeros(self.maxtracks, dtype=np.float32)
         
         self.pftree.Branch("ntracks", self.ntracks, "ntracks/i")
-        self.pftree.Branch("tracks_pt", self.tracks_pt, "tracks_pt[ntracks]/F")
-        self.pftree.Branch("tracks_eta", self.tracks_eta, "tracks_eta[ntracks]/F")
+        self.pftree.Branch("tracks_qoverp", self.tracks_qoverp, "tracks_qoverp[ntracks]/F")
+        self.pftree.Branch("tracks_lambda", self.tracks_lambda, "tracks_lambda[ntracks]/F")
         self.pftree.Branch("tracks_phi", self.tracks_phi, "tracks_phi[ntracks]/F")
-        self.pftree.Branch("tracks_charge", self.tracks_charge, "tracks_charge[ntracks]/F")
+        self.pftree.Branch("tracks_dxy", self.tracks_dxy, "tracks_dxy[ntracks]/F")
+        self.pftree.Branch("tracks_dsz", self.tracks_dsz, "tracks_dsz[ntracks]/F")
        
         #http://cmsdoxygen.web.cern.ch/cmsdoxygen/CMSSW_10_6_2/doc/html/dc/d55/classreco_1_1PFCandidate.html 
         self.npfcands = np.zeros(1, dtype=np.uint32)
@@ -135,10 +137,11 @@ class Output:
         self.genparticles_pdgid[:] = 0
         
         self.ntracks[0] = 0
-        self.tracks_pt[:] = 0
-        self.tracks_eta[:] = 0
+        self.tracks_qoverp[:] = 0
+        self.tracks_lambda[:] = 0
         self.tracks_phi[:] = 0
-        self.tracks_charge[:] = 0
+        self.tracks_dxy[:] = 0
+        self.tracks_dsz[:] = 0
         
         self.npfcands[0] = 0
         self.pfcands_pt[:] = 0
@@ -177,15 +180,14 @@ if __name__ == "__main__":
         genpart = evdesc.genparticle.product()
         ngenparticles = 0
         for gp in sorted(genpart, key=lambda x: x.pt(), reverse=True):
-            if gp.status() == 2:
-                output.genparticles_pt[ngenparticles] = gp.pt() 
-                output.genparticles_eta[ngenparticles] = gp.eta() 
-                output.genparticles_phi[ngenparticles] = gp.phi() 
-                output.genparticles_pdgid[ngenparticles] = gp.pdgId() 
-                output.genparticles_x[ngenparticles] = gp.px() 
-                output.genparticles_y[ngenparticles] = gp.py() 
-                output.genparticles_z[ngenparticles] = gp.pz() 
-                ngenparticles += 1
+            output.genparticles_pt[ngenparticles] = gp.pt() 
+            output.genparticles_eta[ngenparticles] = gp.eta() 
+            output.genparticles_phi[ngenparticles] = gp.phi() 
+            output.genparticles_pdgid[ngenparticles] = gp.pdgId() 
+            output.genparticles_x[ngenparticles] = gp.px() 
+            output.genparticles_y[ngenparticles] = gp.py() 
+            output.genparticles_z[ngenparticles] = gp.pz() 
+            ngenparticles += 1
         output.ngenparticles[0] = ngenparticles
      
         pfcluster_ecal = evdesc.pfcluster_ecal.product()
@@ -204,10 +206,11 @@ if __name__ == "__main__":
         tracks = evdesc.tracks.product()
         ntracks = 0
         for c in sorted(tracks, key=lambda x: x.pt(), reverse=True):
-            output.tracks_pt[ntracks] = c.pt()
-            output.tracks_eta[ntracks] = c.eta()
+            output.tracks_qoverp[ntracks] = c.qoverp()
+            output.tracks_lambda[ntracks] = getattr(c, "lambda")() #lambda is a reserved word in python, so we need to use a proxy
             output.tracks_phi[ntracks] = c.phi()
-            output.tracks_charge[ntracks] = c.charge()
+            output.tracks_dxy[ntracks] = c.dxy()
+            output.tracks_dsz[ntracks] = c.dsz()
             ntracks += 1
         output.ntracks[0] = ntracks
         

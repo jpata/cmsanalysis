@@ -49,6 +49,10 @@ clusters = [
   'keep recoPFClusters_particleFlowClusterHO_*_*', 
   'keep recoPFClusters_particleFlowClusterHF_*_*', 
   'keep recoPFClusters_particleFlowClusterPS_*_*',
+  'keep recoTracks_generalTracks_*_*',
+  'keep recoTrackExtras_generalTracks_*_*',
+  'keep TrackingRecHitsOwned_generalTracks_*_*',
+  'keep recoGenParticles_prunedGenParticles_*_*'
 ]
  
 process.AODSIMoutput = cms.OutputModule("PoolOutputModule",
