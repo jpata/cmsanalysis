@@ -46,6 +46,8 @@ class Output:
         self.clusters_depth = np.zeros(self.maxclusters, dtype=np.int32)
         self.clusters_type = np.zeros(self.maxclusters, dtype=np.int32)
         self.clusters_energy = np.zeros(self.maxclusters, dtype=np.float32)
+        self.clusters_eta = np.zeros(self.maxclusters, dtype=np.float32)
+        self.clusters_phi = np.zeros(self.maxclusters, dtype=np.float32)
         self.clusters_x = np.zeros(self.maxclusters, dtype=np.float32)
         self.clusters_y = np.zeros(self.maxclusters, dtype=np.float32)
         self.clusters_z = np.zeros(self.maxclusters, dtype=np.float32)
@@ -60,6 +62,8 @@ class Output:
         self.pftree.Branch("clusters_x", self.clusters_x, "clusters_x[nclusters]/F")
         self.pftree.Branch("clusters_y", self.clusters_y, "clusters_y[nclusters]/F")
         self.pftree.Branch("clusters_z", self.clusters_z, "clusters_z[nclusters]/F")
+        self.pftree.Branch("clusters_eta", self.clusters_eta, "clusters_eta[nclusters]/F")
+        self.pftree.Branch("clusters_phi", self.clusters_phi, "clusters_phi[nclusters]/F")
         
         self.ngenparticles = np.zeros(1, dtype=np.uint32)
         self.maxgenparticles = 1000
@@ -90,6 +94,8 @@ class Output:
         self.tracks_phi = np.zeros(self.maxtracks, dtype=np.float32)
         self.tracks_dxy = np.zeros(self.maxtracks, dtype=np.float32)
         self.tracks_dsz = np.zeros(self.maxtracks, dtype=np.float32)
+        self.tracks_outer_eta = np.zeros(self.maxtracks, dtype=np.float32)
+        self.tracks_outer_phi = np.zeros(self.maxtracks, dtype=np.float32)
         
         self.pftree.Branch("ntracks", self.ntracks, "ntracks/i")
         self.pftree.Branch("tracks_iblock", self.tracks_iblock, "tracks_iblock[ntracks]/i")
@@ -99,6 +105,8 @@ class Output:
         self.pftree.Branch("tracks_phi", self.tracks_phi, "tracks_phi[ntracks]/F")
         self.pftree.Branch("tracks_dxy", self.tracks_dxy, "tracks_dxy[ntracks]/F")
         self.pftree.Branch("tracks_dsz", self.tracks_dsz, "tracks_dsz[ntracks]/F")
+        self.pftree.Branch("tracks_outer_eta", self.tracks_outer_eta, "tracks_outer_eta[ntracks]/F")
+        self.pftree.Branch("tracks_outer_phi", self.tracks_outer_phi, "tracks_outer_phi[ntracks]/F")
        
         #http://cmsdoxygen.web.cern.ch/cmsdoxygen/CMSSW_10_6_2/doc/html/dc/d55/classreco_1_1PFCandidate.html 
         self.npfcands = np.zeros(1, dtype=np.uint32)
@@ -122,7 +130,6 @@ class Output:
         self.pftree.Branch("pfcands_iblock", self.pfcands_iblock, "pfcands_iblock[npfcands]/I")
         self.pftree.Branch("pfcands_ielem", self.pfcands_ielem, "pfcands_ielem[npfcands]/I")
        
-        
         self.maxlinkdata = 50000
         self.nlinkdata = np.zeros(1, dtype=np.uint32)
         self.linkdata_k = np.zeros(self.maxlinkdata, dtype=np.uint32)
@@ -151,6 +158,8 @@ class Output:
         self.clusters_depth[:] = 0
         self.clusters_type[:] = 0
         self.clusters_energy[:] = 0
+        self.clusters_eta[:] = 0
+        self.clusters_phi[:] = 0
         self.clusters_x[:] = 0
         self.clusters_y[:] = 0
         self.clusters_z[:] = 0
@@ -172,6 +181,8 @@ class Output:
         self.tracks_phi[:] = 0
         self.tracks_dxy[:] = 0
         self.tracks_dsz[:] = 0
+        self.tracks_outer_eta[:] = 0
+        self.tracks_outer_phi[:] = 0
         
         self.npfcands[0] = 0
         self.pfcands_pt[:] = 0
@@ -273,20 +284,28 @@ if __name__ == "__main__":
             for ielem, el in enumerate(bl.elements()):
                 tp = el.type()
                 if (tp == ROOT.reco.PFBlockElement.ECAL or
+                   tp == ROOT.reco.PFBlockElement.PS1 or
+                   tp == ROOT.reco.PFBlockElement.PS2 or
                    tp == ROOT.reco.PFBlockElement.HCAL or
+                   tp == ROOT.reco.PFBlockElement.GSF or
+                   tp == ROOT.reco.PFBlockElement.HO or
                    tp == ROOT.reco.PFBlockElement.HFHAD or
                    tp == ROOT.reco.PFBlockElement.HFEM):
-                    cl = el.clusterRef().get()
-                    output.clusters_layer[nclusters] = int(cl.layer())
-                    output.clusters_depth[nclusters] = cl.depth()
-                    output.clusters_energy[nclusters] = cl.energy()
-                    output.clusters_x[nclusters] = cl.x()
-                    output.clusters_y[nclusters] = cl.y()
-                    output.clusters_z[nclusters] = cl.z()
-                    output.clusters_type[nclusters] = int(tp)
-                    output.clusters_iblock[nclusters] = iblock
-                    output.clusters_ielem[nclusters] = ielem
-                    nclusters += 1
+                    clref = el.clusterRef()
+                    if clref.isNonnull():
+                        cl = clref.get()
+                        output.clusters_layer[nclusters] = int(cl.layer())
+                        output.clusters_depth[nclusters] = cl.depth()
+                        output.clusters_energy[nclusters] = cl.energy()
+                        output.clusters_x[nclusters] = cl.x()
+                        output.clusters_y[nclusters] = cl.y()
+                        output.clusters_z[nclusters] = cl.z()
+                        output.clusters_eta[nclusters] = cl.eta()
+                        output.clusters_phi[nclusters] = cl.phi()
+                        output.clusters_type[nclusters] = int(tp)
+                        output.clusters_iblock[nclusters] = iblock
+                        output.clusters_ielem[nclusters] = ielem
+                        nclusters += 1
                 elif (tp == ROOT.reco.PFBlockElement.TRACK):
                    c = el.trackRef().get()
                    output.tracks_qoverp[ntracks] = c.qoverp()
@@ -294,6 +313,8 @@ if __name__ == "__main__":
                    output.tracks_phi[ntracks] = c.phi()
                    output.tracks_dxy[ntracks] = c.dxy()
                    output.tracks_dsz[ntracks] = c.dsz()
+                   output.tracks_outer_eta[ntracks] = c.outerPosition().eta()
+                   output.tracks_outer_phi[ntracks] = c.outerPosition().phi()
                    output.tracks_iblock[ntracks] = iblock
                    output.tracks_ielem[ntracks] = ielem
                    ntracks += 1

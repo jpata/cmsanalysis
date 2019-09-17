@@ -1,0 +1,21 @@
+Universe = vanilla
+executable = opendata_AOD2NanoAOD.sh
+arguments = "$(ProcId)"
+output = output/opendata.$(ClusterId).$(ProcId).out
+error = error/opendata.$(ClusterId).$(ProcId).err
+log = log/opendata.$(ClusterId).log
+
+transfer_input_files = data/Summer12_DR53X_DY2JetsToLL_M-50_TuneZ2Star_8TeV-madgraph.txt 
+run_as_owner = True
+x509userproxy = $ENV(X509_USER_PROXY)
+Requirements=(TARGET.OpSysAndVer=="CentOS7" && regexp("blade.*", TARGET.Machine))
+
++InteractiveUser = true
++SingularityImage = "/cvmfs/singularity.opensciencegrid.org/bbockelm/cms:rhel6"
++SingularityBindCVMFS = True
++RequestWalltime = 12*3600
+RequestDisk = 4
+RequestMemory = 5000
+RequestCpus = 1
+
+queue 10
