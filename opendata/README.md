@@ -4,11 +4,15 @@
 
 ## RunI, Summer12
 
-- 
+- DY2JetsToLL_M-50: http://opendata.cern.ch/record/7720, http://opendata.cern.ch/record/7721 
 
 ## RunIISummer16MiniAODv2
 
 - QCD_Pt-15to7000: http://opendata.cern.ch/record/12021
+
+# NanoAOD from AOD using the outreach tool
+
+Recipe here: https://github.com/cms-opendata-analyses/AOD2NanoAODOutreachTool
 
 # NanoAOD from MiniAOD
 
