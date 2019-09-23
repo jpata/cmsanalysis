@@ -1,3 +1,4 @@
+import setGPU
 import uproot
 import numpy as np
 import keras
@@ -12,6 +13,7 @@ import matplotlib.pyplot as plt
 maxclusters = -1
 maxtracks = -1
 maxcands = -1
+image_bins = 256
 
 from keras.datasets import mnist
 from keras.layers import Input, Dense, Reshape, Flatten, Dropout, Concatenate
@@ -22,7 +24,7 @@ from keras.models import Sequential, Model
 from keras.optimizers import Adam
 
 def to_image(iev, Xs_cluster, Xs_track, ys_cand):
-    bins = [np.linspace(-5, 5, 2**8+1), np.linspace(-5, 5, 2**8+1)]
+    bins = [np.linspace(-5, 5, image_bins + 1), np.linspace(-5, 5, image_bins + 1)]
     h_cluster = np.histogram2d(
         Xs_cluster[iev][:, 1],
         Xs_cluster[iev][:, 2],
@@ -55,8 +57,8 @@ def to_image(iev, Xs_cluster, Xs_track, ys_cand):
 class Pix2Pix():
     def __init__(self):
         # Input shape
-        self.img_rows = 256
-        self.img_cols = 256
+        self.img_rows = image_bins
+        self.img_cols = image_bins
         self.channels = 3
         self.img_shape = (self.img_rows, self.img_cols, self.channels)
         self.img_shape_out = (self.img_rows, self.img_cols, 1)
@@ -76,11 +78,6 @@ class Pix2Pix():
         self.discriminator.compile(loss='mse',
             optimizer=optimizer,
             metrics=['accuracy'])
-
-        #-------------------------
-        # Construct Computational
-        #   Graph of Generator
-        #-------------------------
 
         # Build the generator
         self.generator = self.build_generator()
@@ -132,15 +129,15 @@ class Pix2Pix():
         d2 = conv2d(d1, self.gf*2)
         d3 = conv2d(d2, self.gf*4)
         d4 = conv2d(d3, self.gf*8)
-        d5 = conv2d(d4, self.gf*8)
+        #d5 = conv2d(d4, self.gf*8)
         #d6 = conv2d(d5, self.gf*8)
         #d7 = conv2d(d6, self.gf*8)
 
         # Upsampling
         #u1 = deconv2d(d7, d6, self.gf*8)
         #u2 = deconv2d(u1, d5, self.gf*8)
-        u3 = deconv2d(d5, d4, self.gf*8)
-        u4 = deconv2d(u3, d3, self.gf*4)
+        #u3 = deconv2d(u2, d4, self.gf*8)
+        u4 = deconv2d(d4, d3, self.gf*4)
         u5 = deconv2d(u4, d2, self.gf*2)
         u6 = deconv2d(u5, d1, self.gf)
 
@@ -174,7 +171,7 @@ class Pix2Pix():
 
         return Model([img_A, img_B], validity)
 
-    def train(self, data_images_in, data_images_out, epochs, batch_size=1, sample_interval=50):
+    def train(self, data_images_in, data_images_out, epochs, batch_size=1, sample_interval=1):
 
         start_time = datetime.datetime.now()
 
@@ -216,6 +213,13 @@ class Pix2Pix():
 
             losses_d += [d_loss]
             losses_g += [g_loss]
+            if epoch % sample_interval == 0:
+                model.generator.save('model_g_{0}.h5'.format(epoch))
+                model.discriminator.save('model_d_{0}.h5'.format(epoch))
+                pred = model.generator.predict(data_images_in[:10])
+                with open("pred_{0}.npz", "wb") as fi:
+                    np.savez(fi, pred=pred)
+
         return losses_d, losses_g
 
 def myGenerator(batch_size, data_images_in, data_images_out):
@@ -361,7 +365,9 @@ if __name__ == "__main__":
     #with open("data.npz", "wb") as fi:
     #    np.savez(fi, data_images_in=data_images_in, data_images_out=data_images_out)
 
-    model = Pix2Pix() 
+    model = Pix2Pix()
+    model.generator.summary()
+    model.discriminator.summary()
     with open("data.npz", "rb") as fi:
         data = np.load(fi)
         data_images_in = data["data_images_in"] 
