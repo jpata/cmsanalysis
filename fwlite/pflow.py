@@ -94,8 +94,12 @@ class Output:
         self.tracks_phi = np.zeros(self.maxtracks, dtype=np.float32)
         self.tracks_dxy = np.zeros(self.maxtracks, dtype=np.float32)
         self.tracks_dsz = np.zeros(self.maxtracks, dtype=np.float32)
+        self.tracks_inner_eta = np.zeros(self.maxtracks, dtype=np.float32)
+        self.tracks_inner_phi = np.zeros(self.maxtracks, dtype=np.float32)
         self.tracks_outer_eta = np.zeros(self.maxtracks, dtype=np.float32)
         self.tracks_outer_phi = np.zeros(self.maxtracks, dtype=np.float32)
+        self.tracks_inner_eta = np.zeros(self.maxtracks, dtype=np.float32)
+        self.tracks_inner_phi = np.zeros(self.maxtracks, dtype=np.float32)
         
         self.pftree.Branch("ntracks", self.ntracks, "ntracks/i")
         self.pftree.Branch("tracks_iblock", self.tracks_iblock, "tracks_iblock[ntracks]/i")
@@ -107,6 +111,8 @@ class Output:
         self.pftree.Branch("tracks_dsz", self.tracks_dsz, "tracks_dsz[ntracks]/F")
         self.pftree.Branch("tracks_outer_eta", self.tracks_outer_eta, "tracks_outer_eta[ntracks]/F")
         self.pftree.Branch("tracks_outer_phi", self.tracks_outer_phi, "tracks_outer_phi[ntracks]/F")
+        self.pftree.Branch("tracks_inner_eta", self.tracks_inner_eta, "tracks_inner_eta[ntracks]/F")
+        self.pftree.Branch("tracks_inner_phi", self.tracks_inner_phi, "tracks_inner_phi[ntracks]/F")
        
         #http://cmsdoxygen.web.cern.ch/cmsdoxygen/CMSSW_10_6_2/doc/html/dc/d55/classreco_1_1PFCandidate.html 
         self.npfcands = np.zeros(1, dtype=np.uint32)
@@ -183,6 +189,8 @@ class Output:
         self.tracks_dsz[:] = 0
         self.tracks_outer_eta[:] = 0
         self.tracks_outer_phi[:] = 0
+        self.tracks_inner_eta[:] = 0
+        self.tracks_inner_phi[:] = 0
         
         self.npfcands[0] = 0
         self.pfcands_pt[:] = 0
@@ -315,6 +323,8 @@ if __name__ == "__main__":
                    output.tracks_dsz[ntracks] = c.dsz()
                    output.tracks_outer_eta[ntracks] = c.outerPosition().eta()
                    output.tracks_outer_phi[ntracks] = c.outerPosition().phi()
+                   output.tracks_inner_eta[ntracks] = c.innerPosition().eta()
+                   output.tracks_inner_phi[ntracks] = c.innerPosition().phi()
                    output.tracks_iblock[ntracks] = iblock
                    output.tracks_ielem[ntracks] = ielem
                    ntracks += 1
