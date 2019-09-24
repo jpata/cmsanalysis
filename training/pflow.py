@@ -4,6 +4,7 @@ import numpy as np
 import keras
 import glob
 import keras.backend as K
+import tensorflow as tf
 import datetime
 
 import matplotlib
@@ -68,8 +69,8 @@ class Pix2Pix():
         self.disc_patch = (patch, patch, 1)
 
         # Number of filters in the first layer of G and D
-        self.gf = 16
-        self.df = 16
+        self.gf = 64
+        self.df = 64
 
         optimizer = Adam(0.0002, 0.5)
 
@@ -82,23 +83,23 @@ class Pix2Pix():
         # Build the generator
         self.generator = self.build_generator()
 
-        # Input images and their conditioning images
-        img_in = Input(shape=self.img_shape)
-        img_out = Input(shape=self.img_shape_out)
+        ## Input images and their conditioning images
+        #img_in = Input(shape=self.img_shape)
+        #img_out = Input(shape=self.img_shape_out)
 
-        # By conditioning on B generate a fake version of A
-        fake_out = self.generator(img_in)
+        ## By conditioning on B generate a fake version of A
+        #fake_out = self.generator(img_in)
 
-        # For the combined model we will only train the generator
-        self.discriminator.trainable = False
+        ## For the combined model we will only train the generator
+        #self.discriminator.trainable = False
 
-        # Discriminators determines validity of translated images / condition pairs
-        valid = self.discriminator([img_in, img_out])
+        ## Discriminators determines validity of translated images / condition pairs
+        #valid = self.discriminator([img_in, img_out])
 
-        self.combined = Model(inputs=[img_in, img_out], outputs=[valid, fake_out])
-        self.combined.compile(loss=['mse', 'mae'],
-                              loss_weights=[1, 100],
-                              optimizer=optimizer)
+        #self.combined = Model(inputs=[img_in, img_out], outputs=[valid, fake_out])
+        #self.combined.compile(loss=['mse', 'mae'],
+        #                      loss_weights=[1, 100],
+        #                      optimizer=optimizer)
 
     def build_generator(self):
         """U-Net Generator"""
@@ -129,15 +130,15 @@ class Pix2Pix():
         d2 = conv2d(d1, self.gf*2)
         d3 = conv2d(d2, self.gf*4)
         d4 = conv2d(d3, self.gf*8)
-        #d5 = conv2d(d4, self.gf*8)
-        #d6 = conv2d(d5, self.gf*8)
+        d5 = conv2d(d4, self.gf*8)
+        d6 = conv2d(d5, self.gf*8)
         #d7 = conv2d(d6, self.gf*8)
 
         # Upsampling
         #u1 = deconv2d(d7, d6, self.gf*8)
-        #u2 = deconv2d(u1, d5, self.gf*8)
-        #u3 = deconv2d(u2, d4, self.gf*8)
-        u4 = deconv2d(d4, d3, self.gf*4)
+        u2 = deconv2d(d6, d5, self.gf*8)
+        u3 = deconv2d(u2, d4, self.gf*8)
+        u4 = deconv2d(u3, d3, self.gf*4)
         u5 = deconv2d(u4, d2, self.gf*2)
         u6 = deconv2d(u5, d1, self.gf)
 
@@ -217,10 +218,45 @@ class Pix2Pix():
                 model.generator.save('model_g_{0}.h5'.format(epoch))
                 model.discriminator.save('model_d_{0}.h5'.format(epoch))
                 pred = model.generator.predict(data_images_in[:10])
-                with open("pred_{0}.npz", "wb") as fi:
+                with open("pred_{0}.npz".format(epoch), "wb") as fi:
                     np.savez(fi, pred=pred)
 
         return losses_d, losses_g
+
+class EMDModel:
+    def __init__(self):
+        self.base_model = Pix2Pix()
+        optimizer = Adam(0.0002, 0.5)
+        self.base_model.generator.compile(
+            loss='mse',
+            optimizer=optimizer,
+            metrics=['accuracy'])
+
+    def train(self, data_images_in, data_images_out, data_images_in_val, data_images_out_val, epochs, batch_size=1, sample_interval=1):
+
+        start_time = datetime.datetime.now()
+
+        losses = []
+
+        for epoch in range(epochs):
+            for batch_i, (imgs_in, imgs_out) in enumerate(myGenerator(batch_size, data_images_in, data_images_out)):
+                loss = self.base_model.generator.train_on_batch(imgs_in, imgs_out)
+                losses += [loss]
+
+            elapsed_time = datetime.datetime.now() - start_time
+            if epoch % sample_interval == 0:
+                self.base_model.generator.save('model_g_{0}.h5'.format(epoch))
+                pred = self.base_model.generator.predict(data_images_in[:10])
+                with open("pred_{0}.npz".format(epoch), "wb") as fi:
+                    np.savez(fi, pred=pred)
+
+            val_loss = self.base_model.generator.evaluate(data_images_in_val, data_images_out_val, batch_size=100, verbose=False)
+
+            print("[Epoch %d/%d] [loss: %f] [val loss: %f]  time: %s" % (epoch, epochs,
+                loss[0], val_loss[0],
+                elapsed_time))
+
+        return losses
 
 def myGenerator(batch_size, data_images_in, data_images_out):
     ibatch = 0
@@ -234,6 +270,26 @@ def myGenerator(batch_size, data_images_in, data_images_out):
             break
 
 # https://github.com/master/nima/blob/master/nima.py#L58
+
+def tril_indices(n, k=0):
+    """Return the indices for the lower-triangle of an (n, m) array.
+    Works similarly to `np.tril_indices`
+    Args:
+      n: the row dimension of the arrays for which the returned indices will
+        be valid.
+      k: optional diagonal offset (see `np.tril` for details).
+    Returns:
+      inds: The indices for the triangle. The returned tuple contains two arrays,
+        each with the indices along one dimension of the array.
+    """
+    m1 = tf.tile(tf.expand_dims(tf.range(n), axis=0), [n, 1])
+    m2 = tf.tile(tf.expand_dims(tf.range(n), axis=1), [1, n])
+    mask = (m1 - m2) >= -k
+    ix1 = tf.boolean_mask(m2, tf.transpose(mask))
+    ix2 = tf.boolean_mask(m1, tf.transpose(mask))
+    return ix1, ix2
+
+
 def ecdf(p):
     """Estimate the cumulative distribution function.
     The e.c.d.f. (empirical cumulative distribution function) F_n is a step
@@ -365,12 +421,13 @@ if __name__ == "__main__":
     #with open("data.npz", "wb") as fi:
     #    np.savez(fi, data_images_in=data_images_in, data_images_out=data_images_out)
 
-    model = Pix2Pix()
-    model.generator.summary()
-    model.discriminator.summary()
+    model = EMDModel()
     with open("data.npz", "rb") as fi:
         data = np.load(fi)
         data_images_in = data["data_images_in"] 
         data_images_out = data["data_images_out"] 
    
-        model.train(data_images_in, data_images_out, epochs=10, batch_size=50)
+        model.train(
+            data_images_in[:8000], data_images_out[:8000],
+            data_images_in[8000:], data_images_out[8000:],
+            epochs=50, batch_size=50)
