@@ -24,7 +24,7 @@ cmsRun -e -j fjr.xml myConf.py $NUMJOB
 eval `scram unsetenv -sh`
 
 ## Stageout
-mkdir -p `dirname $OUTLFN`
+#mkdir -p `dirname $OUTLFN`
+#cp myNanoProdMc2018_NANO.root $OUTLFN 
 
-cp myNanoProdMc2018_NANO.root $OUTLFN 
-#gfal-copy file://./myNanoProdMc2018_NANO.root gsiftp://transfer.ultralight.org//store/user/jpata/out_${CONDORJOBID}.root
+gfal-copy file://./myNanoProdMc2018_NANO.root gsiftp://transfer.ultralight.org/$OUTLFN
