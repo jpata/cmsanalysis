@@ -1,0 +1,23 @@
+Universe = vanilla
+Executable = job.sh
+Log = logs/nano.$(Cluster).log
+Output = logs/nano.out.$(Cluster).$(Process)
+Error = logs/nano.err.$(Cluster).$(Process)
+Requirements=(regexp("blade.*", TARGET.Machine))
++RunAsOwner = True
++InteractiveUser = true
++SingularityImage = "/cvmfs/singularity.opensciencegrid.org/bbockelm/cms:rhel6"
++SingularityBindCVMFS = True
++RequestWalltime = 6*3600
+
+run_as_owner = True
+x509userproxy = $ENV(X509_USER_PROXY)
+RequestDisk = 4
+RequestMemory = 2000
+RequestCpus = 1
+
+Environment = USER=$ENV(USER);CONDORJOBID=$(Process);X509_USER_PROXY=$ENV(X509_USER_PROXY)
+
+transfer_input_files = myConf.py,myNanoProdMc2018_NANO.py,inputs.txt
+
+queue arguments from args.txt
