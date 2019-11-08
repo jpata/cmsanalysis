@@ -16,5 +16,5 @@ for ifi, fi in enumerate(open("files.txt").readlines()):
     spl[5] = spl[5].replace("MINIAOD", "NANOAOD")
     spl[-1] = "myNano_{0}.root".format(ifi)
     out_lfn = "/".join(spl)
-    print(out_lfn, lfn, file=inputfile)
+    print(out_lfn, fi, file=inputfile)
     print(ifi, file=argfile)     
