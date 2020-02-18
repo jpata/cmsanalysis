@@ -19,5 +19,7 @@ RequestCpus = 1
 Environment = USER=$ENV(USER);CONDORJOBID=$(Process);X509_USER_PROXY=$ENV(X509_USER_PROXY)
 
 transfer_input_files = myConf.py,myNanoProdMc2018_NANO.py,inputs.txt
+transfer_output_files = fjr.xml
+transfer_output_remaps = "fjr.xml=outputs/fjr.$(Cluster).$(Process).xml"
 
 queue arguments from args.txt

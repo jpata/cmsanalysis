@@ -27,4 +27,4 @@ eval `scram unsetenv -sh`
 #mkdir -p `dirname $OUTLFN`
 #cp myNanoProdMc2018_NANO.root $OUTLFN 
 
-gfal-copy file://./myNanoProdMc2018_NANO.root gsiftp://transfer.ultralight.org/$OUTLFN
+gfal-copy myNanoProdMc2018_NANO.root gsiftp://transfer.ultralight.org/$OUTLFN
