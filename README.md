@@ -74,7 +74,21 @@ runTheMatrix.py -l 38
 
 ### Selecting a subset of events in a file
 
-
 ```bash
 cmsRun $CMSSW_RELEASE_BASE/src/PhysicsTools/Utilities/configuration/copyPickMerge_cfg.py inputFiles=root://cms-xrd-global.cern.ch///store/relval/CMSSW_11_0_0_pre12/RelValTTbar_14TeV/GEN-SIM-DIGI-RAW/PU_110X_mcRun3_2021_realistic_v5-v1/20000/7CCD50E3-D786-4044-9CEF-793F6EC79183.root maxEvents=10
+```
+
+
+### Dump a Global Tag
+
+
+```bash
+conddb copy --destdb 110X_mcRun3_2021_realistic_v5.db 110X_mcRun3_2021_realistic_v5
+```
+
+In CMSSW configuration
+```python
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.GlobalTag = GlobalTag(process.GlobalTag, "110X_mcRun3_2021_realistic_v5", "")
+process.GlobalTag.connect = "sqlite_file:110X_mcRun3_2021_realistic_v5.db"
 ```
