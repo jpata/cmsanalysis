@@ -92,3 +92,10 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag = GlobalTag(process.GlobalTag, "110X_mcRun3_2021_realistic_v5", "")
 process.GlobalTag.connect = "sqlite_file:110X_mcRun3_2021_realistic_v5.db"
 ```
+
+
+### CMSSW gdb
+
+```bash
+scramv1 b USER_CXXFLAGS=-g USER_CXXFLAGS+=-O0
+```
