@@ -68,7 +68,7 @@ process.AODSIMoutput = cms.OutputModule("PoolOutputModule",
 
 Compiling and running a test workflow.
 ```bash
-scram b -j8 USER_CXXFLAGS="-DEDM_ML_DEBUG"
+scram b -j8 USER_CXXFLAGS+="-DEDM_ML_DEBUG" USER_CXXFLAGS+="-O" USER_CXXFLAGS+="-g"
 runTheMatrix.py -l 38
 ```
 
@@ -97,5 +97,20 @@ process.GlobalTag.connect = "sqlite_file:110X_mcRun3_2021_realistic_v5.db"
 ### CMSSW gdb
 
 ```bash
-scramv1 b USER_CXXFLAGS=-g USER_CXXFLAGS+=-O0
+scram b -j8 USER_CXXFLAGS+="-DEDM_ML_DEBUG" USER_CXXFLAGS+="-O0" USER_CXXFLAGS+="-g"
+```
+
+### MessageLogger 
+
+
+```python
+process.MessageLogger = cms.Service("MessageLogger",
+    destinations  = cms.untracked.vstring('cout'),
+    categories = cms.untracked.vstring(['PFDisplacedVertexCandidateFinder']),
+    cout = cms.untracked.PSet(
+        threshold =  cms.untracked.string('INFO'),
+        INFO = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+        PFDisplacedVertexCandidateFinder = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
+    )
+)
 ```
