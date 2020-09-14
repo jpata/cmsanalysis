@@ -104,13 +104,18 @@ scram b -j8 USER_CXXFLAGS+="-DEDM_ML_DEBUG" USER_CXXFLAGS+="-O0" USER_CXXFLAGS+=
 
 
 ```python
-process.MessageLogger = cms.Service("MessageLogger",
-    destinations  = cms.untracked.vstring('cout'),
-    categories = cms.untracked.vstring(['PFDisplacedVertexCandidateFinder']),
-    cout = cms.untracked.PSet(
-        threshold =  cms.untracked.string('INFO'),
-        INFO = cms.untracked.PSet(limit = cms.untracked.int32(0)),
-        PFDisplacedVertexCandidateFinder = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
-    )
+#These are the LogDebug(...) categories
+process.MessageLogger.categories += ["CandIsoDepositProducer", "CandViewExtractor"]
+
+#these are the CMSSW modules
+process.MessageLogger.debugModules = cms.untracked.vstring("phPFIsoDepositChargedPAT")
+
+process.MessageLogger.debugs = cms.untracked.PSet(
+     INFO =  cms.untracked.PSet(limit = cms.untracked.int32(0)),
+     DEBUG   = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+     #add categories also here
+     CandIsoDepositProducer = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
+     CandViewExtractor = cms.untracked.PSet(limit = cms.untracked.int32(-1)),
+     threshold = cms.untracked.string('DEBUG')
 )
 ```
