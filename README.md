@@ -97,7 +97,7 @@ process.GlobalTag.connect = "sqlite_file:110X_mcRun3_2021_realistic_v5.db"
 ### CMSSW gdb
 
 ```bash
-scram b -j8 USER_CXXFLAGS+="-DEDM_ML_DEBUG" USER_CXXFLAGS+="-O0" USER_CXXFLAGS+="-g"
+scram b -j8 USER_CXXFLAGS+="-DEDM_ML_DEBUG" USER_CXXFLAGS+="-O0" USER_CXXFLAGS+="-g" USER_CXXFLAGS+="-fno-omit-frame-pointer"
 ```
 
 ### MessageLogger 
